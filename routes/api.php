@@ -13,6 +13,15 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::group(
+    [
+        'namespace' => 'Api\Comment'
+    ],
+    function () {
+        Route::get('comments', 'CommentController@index');
+        Route::get('comments/{id}', 'CommentController@show');
+        Route::post('comments', 'CommentController@store');
+        Route::put('comments/{id}', 'CommentController@update');
+        Route::delete('comments/{id}', 'CommentController@destroy');
+    }
+);

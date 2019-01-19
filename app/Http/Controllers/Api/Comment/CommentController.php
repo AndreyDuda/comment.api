@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Comment;
 
+use App\Http\Requests\Api\Comment\CreateRequest;
+use App\Http\Resources\Comment\CommentResource;
 use App\Model\Comment\Comment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -15,7 +17,11 @@ class CommentController extends Controller
      */
     public function index()
     {
-        return Comment::all();
+        if ($comments = Comment::all()) {
+            return response()->json(CommentResource::collection($comments), 200);
+        }
+
+        return response()->json(['error' => 'Error'], 400);
     }
 
     /**
@@ -31,23 +37,37 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  CreateRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateRequest $request)
     {
-        return Comment::created($request->all());
+        $comment = Comment::new(
+            $request->user_id,
+            $request->text,
+            $request->parent_id
+        );
+
+        if ($comment) {
+            return response()->json(CommentResource::collection($comment), 200);
+        }
+
+        return response()->json(['error' => 'Error'], 400);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Comment  $comment
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        return Comment::find($id);
+        if ($comment = Comment::getOne($id)) {
+            return response()->json($comment, 200);
+        }
+
+        return response()->json(['error' => 'Error'], 400);
     }
 
     /**
@@ -65,28 +85,29 @@ class CommentController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  Comment  $comment
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Comment $comment)
     {
-        $comment = Comment::findOrFail($id);
-        $comment->update($request->all());
+        if ($comment->update($request->all())) {
+            return response()->json(CommentResource::collection($comment), 200);
+        }
 
-        return $comment;
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  Comment  $comment
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $comment = Comment::findOrFail($id);
-        $comment->delete();
+        if ($comment = Comment::getOne($id)->delete()) {
+            return response()->json(['success' => 'ok'], 204);
+        }
 
-        return 204;
+        return response()->json(['error' => 'Error'], 400);
     }
 }

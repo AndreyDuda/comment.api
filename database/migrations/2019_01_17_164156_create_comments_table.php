@@ -16,7 +16,7 @@ class CreateCommentsTable extends Migration
     {
         Schema::create(Comment::TABLE, function (Blueprint $table) {
             $table->increments(Comment::PROP_ID);
-            $table->string(Comment::PROD_USER_NAME, 255);
+            $table->string(Comment::PROP_USER_NAME, 255);
             $table->integer(Comment::PROP_PARENT_ID)->nullable()
                 ->references(Comment::PROP_ID)
                 ->on(Comment::TABLE)

@@ -23,7 +23,7 @@ class Comment extends Model
     const TABLE = 'comments';
 
     const PROP_ID        = 'id';
-    const PROD_USER_NAME = 'user_name';
+    const PROP_USER_NAME = 'user_name';
     const PROP_PARENT_ID = 'parent_id';
     const PROP_TEXT      = 'text';
     const CREATED_AT     = 'created_at';
@@ -34,9 +34,13 @@ class Comment extends Model
     protected $dates = [self::DELETED_AT];
 
     protected $fillable = [
-        self::PROD_USER_NAME,
+        self::PROP_USER_NAME,
         self::PROP_PARENT_ID,
         self::PROP_TEXT
+    ];
+
+    protected $hidden = [
+        self::DELETED_AT
     ];
 
     public function parent()
@@ -47,6 +51,30 @@ class Comment extends Model
     public function children()
     {
         return $this->hasmany(Comment::class, self::PROP_PARENT_ID, self::PROP_ID);
+    }
+
+    public static function new($user_name, $text, $parent_id = null): self
+    {
+        return static::create([
+            self::PROP_USER_NAME => $user_name,
+            self::PROP_TEXT      => $text,
+            self::PROP_PARENT_ID => $parent_id
+        ]);
+    }
+
+    public static function getOne($id)
+    {
+        return static::findOrFail($id);
+    }
+
+    public static function getAll()
+    {
+        return static::all();
+    }
+
+    public static function getPaginate($count)
+    {
+        return static::getPaginate($count);
     }
 
 }
