@@ -3,9 +3,9 @@
 namespace App\Http\Resources\Comment;
 
 use App\Model\Comment\Comment;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\Resource;
 
-class CommentResource extends JsonResource
+class CommentResource extends Resource
 {
     /**
      * Transform the resource into an array.

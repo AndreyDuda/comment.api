@@ -17,8 +17,8 @@ class CommentController extends Controller
      */
     public function index()
     {
-        if ($comments = Comment::all()) {
-            return response()->json(CommentResource::collection($comments), 200);
+        if ($comments = Comment::getPaginate(15)) {
+            return CommentResource::collection($comments);
         }
 
         return response()->json(['error' => 'Error'], 400);
@@ -59,12 +59,12 @@ class CommentController extends Controller
      * Display the specified resource.
      *
      * @param  Comment  $comment
-     * @return \Illuminate\Http\Response
+     * @return CommentResource
      */
     public function show($id)
     {
         if ($comment = Comment::getOne($id)) {
-            return response()->json($comment, 200);
+            return new CommentResource($comment);
         }
 
         return response()->json(['error' => 'Error'], 400);
@@ -100,12 +100,14 @@ class CommentController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  Comment  $comment
-     * @return \Illuminate\Http\Response
+     * @return CommentResource
      */
     public function destroy($id)
     {
-        if ($comment = Comment::getOne($id)->delete()) {
-            return response()->json(['success' => 'ok'], 204);
+        $comment = Comment::findOrFail($id);
+        if ($comment->delete()) {
+            //return response()->json(['success' => 'ok'], 204);
+            return new CommentResource($comment);
         }
 
         return response()->json(['error' => 'Error'], 400);

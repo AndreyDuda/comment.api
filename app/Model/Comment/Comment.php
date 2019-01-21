@@ -74,7 +74,7 @@ class Comment extends Model
 
     public static function getPaginate($count)
     {
-        return static::getPaginate($count);
+        return static::paginate($count);
     }
 
 }
