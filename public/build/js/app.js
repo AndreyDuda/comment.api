@@ -1644,10 +1644,54 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    date: function date() {
-        return {};
+    data: function data() {
+        return {
+            comments: [],
+            comment: {
+                id: '',
+                parent_id: '',
+                user_name: '',
+                text: ''
+            },
+            parent_id: '',
+            pagination: {},
+            edit: false
+        };
     },
     created: function created() {
         this.fetchComments();
@@ -1655,12 +1699,95 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
     methods: {
-        fetchComments: function fetchComments() {
-            fetch('api/comments').then(function (res) {
+        fetchComments: function fetchComments(page_url) {
+            var _this = this;
+
+            var vm = this;
+            page_url = page_url || '/api/comments';
+            fetch(page_url).then(function (res) {
                 return res.json();
             }).then(function (res) {
-                console.log(res);
+                console.log(res.data);
+                _this.comments = res.data;
+                vm.makePagination(res.meta, res.links);
+            }).catch(function (err) {
+                return console.log(err);
             });
+        },
+        makePagination: function makePagination(meta, links) {
+            var pagination = {
+                current_page: meta.current_page,
+                last_page: meta.last_page,
+                next_page_url: links.next,
+                prev_page_url: links.prev
+            };
+
+            this.pagination = pagination;
+        },
+        deleteComment: function deleteComment(id) {
+            var _this2 = this;
+
+            if (confirm('Are You Sure?')) {
+                fetch('/api/comments/' + id, {
+                    method: 'delete'
+                }).then(function (res) {
+                    return res.json();
+                }).then(function (data) {
+                    alert('Comment Removed');
+                    _this2.fetchComments();
+                }).catch(function (err) {
+                    return console.log(err);
+                });
+            }
+            console.log('id - ' + id);
+        },
+        addComment: function addComment() {
+            var _this3 = this;
+
+            if (this.edit == false) {
+                //add
+                fetch('api/comments', {
+                    method: 'post',
+                    body: JSON.stringify(this.comment),
+                    headers: {
+                        'content-type': 'application/json'
+                    }
+                }).then(function (res) {
+                    return res.json;
+                }).then(function (data) {
+                    _this3.comment.text = '';
+                    _this3.comment.user_name = '';
+                    alert('Comment Added');
+                    _this3.fetchComments();
+                }).catch(function (err) {
+                    return console.log(err);
+                });
+            } else {
+                //edit
+                fetch('api/comments', {
+                    method: 'put',
+                    body: JSON.stringify(this.comment),
+                    headers: {
+                        'content-type': 'application/json'
+                    }
+                }).then(function (res) {
+                    return res.json;
+                }).then(function (data) {
+                    _this3.comment.id = '';
+                    _this3.comment.text = '';
+                    _this3.comment.user_name = '';
+                    alert('Comment Updated');
+                    _this3.fetchComments();
+                }).catch(function (err) {
+                    return console.log(err);
+                });
+            }
+        },
+        editComment: function editComment(comment) {
+            this.edit = true;
+            this.comment.id = comment.id;
+            this.comment.user_name = comment.user_name;
+            this.comment.text = comment.text;
         }
     }
 });
@@ -36594,16 +36721,190 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c(
+    "div",
+    [
+      _c("h2", [_vm._v("Комментарии")]),
+      _vm._v(" "),
+      _c(
+        "form",
+        {
+          staticClass: "mb-3",
+          on: {
+            submit: function($event) {
+              $event.preventDefault()
+              return _vm.addComment($event)
+            }
+          }
+        },
+        [
+          _c("div", { staticClass: "form-group" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.comment.user_name,
+                  expression: "comment.user_name"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { type: "text", placeholder: "Name" },
+              domProps: { value: _vm.comment.user_name },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.comment, "user_name", $event.target.value)
+                }
+              }
+            }),
+            _vm._v(" "),
+            _c("textarea", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.comment.text,
+                  expression: "comment.text"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { placeholder: "Text" },
+              domProps: { value: _vm.comment.text },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.comment, "text", $event.target.value)
+                }
+              }
+            }),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-light btn-block",
+                attrs: { type: "submit" }
+              },
+              [_vm._v("Save")]
+            )
+          ])
+        ]
+      ),
+      _vm._v(" "),
+      _c("nav", { attrs: { "aria-label": "Page navigation example" } }, [
+        _c("ul", { staticClass: "pagination" }, [
+          _c(
+            "li",
+            {
+              staticClass: "page-item",
+              class: [{ disabled: !_vm.pagination.prev_page_url }]
+            },
+            [
+              _c(
+                "a",
+                {
+                  staticClass: "page-link",
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      _vm.fetchComments(_vm.pagination.prev_page_url)
+                    }
+                  }
+                },
+                [_vm._v("\n                    Prev\n                ")]
+              )
+            ]
+          ),
+          _vm._v(" "),
+          _c("li", { staticClass: "page-item disabled" }, [
+            _c(
+              "a",
+              { staticClass: "page-link text-dark", attrs: { href: "#" } },
+              [
+                _vm._v(
+                  "\n                    Page " +
+                    _vm._s(_vm.pagination.current_page) +
+                    " of " +
+                    _vm._s([_vm.pagination.last_page]) +
+                    "\n                "
+                )
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c(
+            "li",
+            {
+              staticClass: "page-item",
+              class: [{ disabled: !_vm.pagination.next_page_url }]
+            },
+            [
+              _c(
+                "a",
+                {
+                  staticClass: "page-link",
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      _vm.fetchComments(_vm.pagination.next_page_url)
+                    }
+                  }
+                },
+                [_vm._v("\n                    Next\n                ")]
+              )
+            ]
+          )
+        ])
+      ]),
+      _vm._v(" "),
+      _vm._l(_vm.comments, function(comment) {
+        return _c(
+          "div",
+          { key: comment.id, staticClass: "card card-body mb-2" },
+          [
+            _c("h3", [_vm._v(_vm._s(comment.user_name))]),
+            _vm._v(" "),
+            _c("p", [_vm._v(_vm._s(comment.text))]),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-warning mb-2",
+                on: {
+                  click: function($event) {
+                    _vm.editComment(comment)
+                  }
+                }
+              },
+              [_vm._v("Edit")]
+            ),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-danger",
+                on: {
+                  click: function($event) {
+                    _vm.deleteComment(comment.id)
+                  }
+                }
+              },
+              [_vm._v("Delete")]
+            )
+          ]
+        )
+      })
+    ],
+    2
+  )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", [_c("h2", [_vm._v("Comments")])])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {

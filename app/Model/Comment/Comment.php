@@ -53,6 +53,16 @@ class Comment extends Model
         return $this->hasmany(Comment::class, self::PROP_PARENT_ID, self::PROP_ID);
     }
 
+    public function edit($user_name, $text)
+    {
+
+        $this->user_name = $user_name;
+        $this->text = $text;
+
+        return $this->save();
+    }
+
+
     public static function new($user_name, $text, $parent_id = null): self
     {
         return static::create([
@@ -69,12 +79,13 @@ class Comment extends Model
 
     public static function getAll()
     {
-        return static::all();
+        return static::orderBy('created_at', 'DESC')->all();
     }
 
     public static function getPaginate($count)
     {
-        return static::paginate($count);
+        return static::orderBy('created_at', 'DESC')->paginate($count);
     }
+
 
 }

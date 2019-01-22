@@ -38,18 +38,17 @@ class CommentController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  CreateRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return CommentResource
      */
-    public function store(CreateRequest $request)
+    public function store(Request $request)
     {
         $comment = Comment::new(
-            $request->user_id,
-            $request->text,
-            $request->parent_id
+            $request->input('user_name'),
+            $request->input('text')
         );
 
         if ($comment) {
-            return response()->json(CommentResource::collection($comment), 200);
+            return new CommentResource($comment);
         }
 
         return response()->json(['error' => 'Error'], 400);
@@ -70,30 +69,27 @@ class CommentController extends Controller
         return response()->json(['error' => 'Error'], 400);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  Comment  $comment
-     * @return \Illuminate\Http\Response
+     * @return CommentResource
      */
-    public function update(Request $request, Comment $comment)
+    public function update(Request $request)
     {
-        if ($comment->update($request->all())) {
-            return response()->json(CommentResource::collection($comment), 200);
+        $comment = Comment::getOne($request->input('id'));
+        /** @var Comment $comment */
+
+        $comment = $comment->edit(
+            $request->input('user_name'),
+            $request->input('text')
+        );
+        if ($comment) {
+            return new CommentResource($comment);
         }
 
+        return response()->json(['error' => 'Error'], 400);
     }
 
     /**
@@ -104,9 +100,8 @@ class CommentController extends Controller
      */
     public function destroy($id)
     {
-        $comment = Comment::findOrFail($id);
+        $comment = Comment::getOne($id);
         if ($comment->delete()) {
-            //return response()->json(['success' => 'ok'], 204);
             return new CommentResource($comment);
         }
 

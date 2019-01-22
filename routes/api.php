@@ -21,7 +21,7 @@ Route::group(
         Route::get('comments', 'CommentController@index');
         Route::get('comments/{id}', 'CommentController@show');
         Route::post('comments', 'CommentController@store');
-        Route::put('comments/{id}', 'CommentController@update');
+        Route::put('comments', 'CommentController@store');
         Route::delete('comments/{id}', 'CommentController@destroy');
     }
 );
