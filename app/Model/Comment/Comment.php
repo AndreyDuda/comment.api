@@ -50,7 +50,7 @@ class Comment extends Model
 
     public function children()
     {
-        return $this->hasmany(Comment::class, self::PROP_PARENT_ID, self::PROP_ID);
+        return $this->hasmany(Comment::class, self::PROP_ID, self::PROP_PARENT_ID );
     }
 
     public function edit($user_name, $text)
@@ -75,6 +75,11 @@ class Comment extends Model
     public static function getOne($id)
     {
         return static::findOrFail($id);
+    }
+
+    public static function allParent($count)
+    {
+        return static::where('parent_id', null)->orderBy('created_at', 'DESC')->with('children')->paginate($count)->all();
     }
 
     public static function getAll()

@@ -23,5 +23,8 @@ Route::group(
         Route::post('comments', 'CommentController@store');
         Route::put('comments', 'CommentController@store');
         Route::delete('comments/{id}', 'CommentController@destroy');
+
+        Route::get('test', 'CommentController@test');
+
     }
 );

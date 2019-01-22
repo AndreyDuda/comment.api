@@ -5,11 +5,35 @@ namespace App\Http\Controllers\Api\Comment;
 use App\Http\Requests\Api\Comment\CreateRequest;
 use App\Http\Resources\Comment\CommentResource;
 use App\Model\Comment\Comment;
+use App\UsesCase\TreeCase;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class CommentController extends Controller
 {
+    public function treeComments($model = null)
+    {
+        $tree = [];
+
+        foreach ($model as $k=>$item)
+        {
+            $tree[$k]['id'] = $item->id;
+            if ($item->children) {
+
+                $tree['children'] = $this->treeComments($item->children);
+            }
+        }
+
+        return $tree;
+    }
+
+    public function test()
+    {
+        dd(Comment::allParent(15));
+        return $this->treeComments(Comment::allParent(15));
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -22,16 +46,6 @@ class CommentController extends Controller
         }
 
         return response()->json(['error' => 'Error'], 400);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
